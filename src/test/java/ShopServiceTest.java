@@ -10,7 +10,7 @@ class ShopServiceTest {
     @Test
     void addOrderTest() {
         //GIVEN
-        ShopService shopService = new ShopService();
+        ShopService shopService = new ShopService(new ProductRepo(), new OrderMapRepo(), new IdService());
         List<String> productsIds = List.of("1");
 
         //WHEN
@@ -25,7 +25,7 @@ class ShopServiceTest {
     @Test
     void addOrderTest_whenInvalidProductId_expectNull() {
         //GIVEN
-        ShopService shopService = new ShopService();
+        ShopService shopService = new ShopService(new ProductRepo(), new OrderMapRepo(), new IdService());
         List<String> productsIds = List.of("1", "2");
 
         //WHEN

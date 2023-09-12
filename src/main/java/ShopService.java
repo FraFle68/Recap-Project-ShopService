@@ -1,13 +1,13 @@
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
+import java.time.ZonedDateTime;
+import java.util.*;
+
+@RequiredArgsConstructor
 public class ShopService {
-    private ProductRepo productRepo = new ProductRepo();
-    private OrderRepo orderRepo = new OrderMapRepo();
+    private final ProductRepo productRepo;
+    private final OrderRepo orderRepo;
+    private final IdService idService;
 
     public Order addOrder(List<String> productIds) {
         List<Product> products = new ArrayList<>();
@@ -19,7 +19,7 @@ public class ShopService {
             products.add(productToOrder.get());
         }
 
-        Order newOrder = new Order(UUID.randomUUID().toString(), products, OrderStatus.PROCESSING, ZonedDateTime.now());
+        Order newOrder = new Order(idService.generateId().toString(), products, OrderStatus.PROCESSING, ZonedDateTime.now());
 
         return orderRepo.addOrder(newOrder);
     }
@@ -34,5 +34,17 @@ public class ShopService {
         Order updatedOrder = orderRepo.getOrderById(orderId).withStatus(status);
         orderRepo.removeOrder(orderId);
         orderRepo.addOrder(updatedOrder);
+    }
+
+    public Map<OrderStatus, Order> getOldestOrderPerStatus() {
+        Map<OrderStatus, Order> result = new HashMap<>();
+        for (int i = 0; i < OrderStatus.values().length; i++) {
+            OrderStatus statusToCheck = OrderStatus.values()[i];
+            orderRepo.getOrders().stream()
+                    .filter(order -> order.status().equals(statusToCheck))
+                    .min(Order::compareTo)
+                    .ifPresent(order -> result.put(order.status(), order));
+        }
+        return result;
     }
 }

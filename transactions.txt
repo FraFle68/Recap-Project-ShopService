@@ -1,0 +1,5 @@
+addOrder A 01 06
+addOrder B 03 04 09 10
+addOrder C 02 05 08
+setStatus A COMPLETED
+printOrders
