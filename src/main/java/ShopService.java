@@ -12,8 +12,7 @@ public class ShopService {
         for (String productId : productIds) {
             Optional<Product> productToOrder = productRepo.getProductById(productId);
             if (productToOrder.isEmpty()) {
-                System.out.println("Product mit der Id: " + productId + " konnte nicht bestellt werden!");
-                return null;
+                throw new RuntimeException("Product mit der Id: " + productId + " konnte nicht bestellt werden!");
             }
             products.add(productToOrder.get());
         }
@@ -27,5 +26,11 @@ public class ShopService {
         return orderRepo.getOrders().stream()
                 .filter(order -> order.status() == status)
                 .toList();
+    }
+
+    public void updateOrder(String orderId, OrderStatus status){
+        Order updatedOrder = orderRepo.getOrderById(orderId).withStatus(status);
+        orderRepo.removeOrder(orderId);
+        orderRepo.addOrder(updatedOrder);
     }
 }
