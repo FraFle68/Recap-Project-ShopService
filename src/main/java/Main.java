@@ -5,7 +5,8 @@ public class Main {
     public static void main(String[] args) {
         OrderRepo orderRepo = new OrderMapRepo();
         ProductRepo productRepo = new ProductRepo();
-        ShopService neueFischeMerch = new ShopService(productRepo, orderRepo);
+        IdService idService = new IdService();
+        ShopService neueFischeMerch = new ShopService(productRepo, orderRepo, idService);
 
         productRepo.addProduct(new Product("01", "Kaffee Tasse"));
         productRepo.addProduct(new Product("02", "Plüsch Florian"));
