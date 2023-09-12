@@ -1,5 +1,7 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,6 +9,14 @@ public class Main {
         ProductRepo productRepo = new ProductRepo();
         IdService idService = new IdService();
         ShopService neueFischeMerch = new ShopService(productRepo, orderRepo, idService);
+
+        List<String> allLines = null;
+        try {
+            allLines = Files.readAllLines(Paths.get("transactions.txt"));
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
 
         productRepo.addProduct(new Product("01", "Kaffee Tasse"));
         productRepo.addProduct(new Product("02", "Plüsch Florian"));
@@ -19,23 +29,31 @@ public class Main {
         productRepo.addProduct(new Product("09", "Hintergrundbilder"));
         productRepo.addProduct(new Product("10", "Abschlusszertifikat"));
 
-        List<String> order1 = new ArrayList<>();
-        order1.add("01");
-        order1.add("06");
+        Map<String, String> orderKeys = new HashMap<>();
 
-        List<String> order2 = new ArrayList<>();
-        order1.add("03");
-        order1.add("04");
-        order1.add("09");
-        order1.add("10");
+        assert allLines != null : "Die eingelesene Datei ist leer";
 
-        List<String> order3 = new ArrayList<>();
-        order1.add("02");
-        order1.add("05");
-        order1.add("08");
+        for (String line : allLines) {
+            String[] elements = line.split(" ");
+            switch(elements[0]){
+                case "addOrder":
+                    List<String> products = new ArrayList<>();
+                    for (int i = 2; i < elements.length; i++) {
+                        products.add(elements[i]);
+                    }
+                    orderKeys.put(elements[1], neueFischeMerch.addOrder(products).id());
+                    break;
+                case "setStatus":
+                    neueFischeMerch.updateOrder(orderKeys.get(elements[1]), OrderStatus.valueOf(elements[2]));
+                    break;
+                case "printOrders":
+                    for (Order order : orderRepo.getOrders()) {
+                        System.out.println(order);
+                    }
+                    break;
+            }
+            System.out.println(orderKeys);
+        }
 
-        neueFischeMerch.addOrder(order1);
-        neueFischeMerch.addOrder(order2);
-        neueFischeMerch.addOrder(order3);
     }
 }
