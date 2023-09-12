@@ -2,10 +2,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class ShopService {
@@ -38,5 +35,17 @@ public class ShopService {
         Order updatedOrder = orderRepo.getOrderById(orderId).withStatus(status);
         orderRepo.removeOrder(orderId);
         orderRepo.addOrder(updatedOrder);
+    }
+
+    public Map<OrderStatus, Order> getOldestOrderPerStatus() {
+        Map<OrderStatus, Order> result = new HashMap<>();
+        for (int i = 0; i < OrderStatus.values().length; i++) {
+            OrderStatus statusToCheck = OrderStatus.values()[i];
+            orderRepo.getOrders().stream()
+                    .filter(order -> order.status().equals(statusToCheck))
+                    .min(Order::compareTo)
+                    .ifPresent(order -> result.put(order.status(), order));
+        }
+        return result;
     }
 }
